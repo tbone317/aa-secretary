@@ -1,0 +1,5 @@
+### Health check
+GET http://localhost:8080/health
+
+### Health check failure
+POST http://localhost:8080/health
