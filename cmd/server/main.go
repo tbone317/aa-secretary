@@ -6,24 +6,25 @@ import (
 	"net/http"
 )
 
+func routes() http.Handler {
+	mux := http.NewServeMux()
+	mux.HandleFunc("GET /health", healthHandler)
+	return mux
+}
+
 func healthHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
 	w.WriteHeader(http.StatusOK)
-
 	_, _ = w.Write([]byte("ok"))
 }
 
 func main() {
-	mux := http.NewServeMux()
-	mux.HandleFunc("/health", healthHandler)
+	server := &http.Server{
+		Addr:    ":8080",
+		Handler: routes(),
+	}
 
-	addr := ":8080"
-	fmt.Printf("Starting server on %s\n", addr)
-	if err := http.ListenAndServe(addr, mux); err != nil {
+	fmt.Printf("Starting server on %s\n", server.Addr)
+	if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatalf("Server failed to start: %v", err)
 	}
 }
